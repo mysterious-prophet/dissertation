@@ -1,0 +1,22 @@
+function res_learn = learnLDA(X, y_star, lambda)
+    [m, n] = size(X);
+    num_classes = max(y_star);
+    mu = zeros(num_classes, n);
+    sigma = zeros(n, n);
+
+    for i = 1:num_classes
+        class_ind = find(y_star == i);
+        num_found = size(class_ind, 1);
+        if(numel(class_ind) == 0)
+            mu(i, :) = inf;
+        else
+            X_found = X(class_ind, :);
+            mu(i, :) = mean(X_found, 1);
+            sigma = sigma + (cov(X_found) + lambda*eye(n, n)) * num_found;
+        end
+    end
+    sigma = sigma / m;
+    sigma_inv = pinv(sigma);
+    sigma_log_det = log(det(sigma));
+    res_learn = {mu, sigma_inv, sigma_log_det};
+end

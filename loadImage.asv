@@ -1,0 +1,79 @@
+function input_image = loadImage(image_filename)
+    image_filename = append('data/', image_filename);
+
+    dot_ind = strfind(image_filename, '.');
+    dot_ind = dot_ind(1);
+    image_format = image_filename(dot_ind+1:end);
+
+    % supported formats
+    imread_formats = {'png', 'jpg', 'jpeg', 'tif', 'tiff', 'bmp', 'gif', 'pbm'};
+    dicom_formats = {'dcm', 'dicom'};
+    nifti_formats = {'nii', 'nii.gz'};
+    interfile_formats = {'img'};
+
+    if(ismember(image_format, imread_formats))
+        input_image = imread(image_filename);
+        if(size(input_image, 3) == 3)
+            input_image = rgb2gray(input_image);
+        end
+
+    elseif(ismember(image_format, dicom_formats))
+        [input_image, ~] = dicomread(image_filename);
+
+    % read nifti image and select the middle of images from 3D    
+    elseif(ismember(image_format, nifti_formats))
+        metadata = niftiinfo(image_filename);
+        input_image = niftiread(metadata);
+        [m, n, p] = size(input_image);
+        
+        input_image_z = squeeze(input_image(:, :, p/2));
+        input_image_y = squeeze(input_image(:, n/2, :));
+        input_image_x = squeeze(input_image(m/2, :, :));
+        input_image = input_image_x;
+
+    elseif(ismember(image_format, interfile_formats))
+        image_filename = image_filename(1:dot_ind-1);
+
+        % read .hdr header
+        header_file = fopen([image_filename '.hdr'],'r');
+        input_header = fread(header_file);
+        fclose(header_file);
+        
+        % 3D .img image sizes and define image
+        m = double(input_header(43) + 256*input_header(44));
+        n = double(input_header(45) + 256*input_header(46));
+        h = double(input_header(47) + 256*input_header(48));
+        X = uint32(zeros(m, n, h));
+        
+        % read .img 1D vector
+        img_file = fopen([image_filename '.img'],'r');
+        input_image = fread(img_file);
+        fclose(img_file);
+
+        % create 3D image by transforming data with step size
+        step_size = length(input_image)/m/n/h;
+        cur_ind = 1;
+        for k = 1:h
+            for j = 1:n
+                for i = 1:m
+                    X(i, j, k) = uint32(input_image(cur_ind));
+                    if(step_size >= 2 && step_size <= 4)
+                        X(i, j, k) = X(i, j, k) + uint32(256*sum(input_image(cur_ind + step_size - 1:cur_ind+1)));
+                    end
+                    cur_ind = cur_ind + step_size;
+                end
+            end
+        end
+
+%         input_image_z = squeeze(X(:, :, round(h/2)));
+%         input_image_y = squeeze(X(:, round(n/2), :));
+%         input_image_x = squeeze(X(round(m/2), :, :));
+%         input_image = input_image_z;
+        input_image = X;
+        max_X 
+        input_image = X / max(max(max(X)));
+    end 
+
+    input_image = double(input_image);
+    input_image = rescale(input_image, 0, 255);    
+end
