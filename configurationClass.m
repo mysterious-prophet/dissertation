@@ -129,15 +129,15 @@ classdef configurationClass
                     conf.num_pos_imgs = 1;
                     conf.num_neg_imgs = 1;
                 
-                    conf.bin_theta_low = 520;
-                    conf.bin_theta_upp = 560;
+                    conf.bin_theta_low = 300;
+                    conf.bin_theta_upp = 450;
                     conf.bin_mask_erode = true;
                 
                     conf.calc_image_features = true;
                     conf.func_name = "zerPoly";
                     conf.l_max = 2;
                     conf.n_max = 2;
-                    conf.rho = 1;
+                    conf.rho = 2;
                 
                     conf.filter_name = ["noFilt" "fftLP"];
                     conf.kernel_style = ["noKer" "buttKer"];

@@ -7,13 +7,17 @@
 
 function bin_mask = calcBinMask(X, low_val, upp_val, bin_mask_erode, rho, epsilon)
     % binary mask creation
-    %volshow(X);
+    % volshow(X);
+    K = calcFilterKernel(X, 'fftDoB', 0, 0.25, 1);
+    X_filt = X .* K;
     [M, N, P] = size(X);
     bin_mask = ones(M, N, P);
     bin_mask(X < low_val) = 0;
     bin_mask(X > upp_val) = 0;
 
-    %volshow(bin_mask);
+    % volshow(bin_mask);
+    % figure;
+    % sliceViewer(bin_mask);
 
     if(bin_mask_erode)
         if nargin == 5
@@ -34,19 +38,18 @@ function bin_mask = calcBinMask(X, low_val, upp_val, bin_mask_erode, rho, epsilo
         B = ifftshift(B);
         Y = B .* bin_mask;
 
-        % FIX
-        % here the y becomes too small (ranging from -0.0 to 0.7) and thus
-        % the bin mask becomes all zeros
         y = real(ifftn(Y));
-        y_2 = reshape(y, [], 1);
-        max_y = max(y_2);
-        min_y = min(y_2);
+        % y_2 = reshape(y, [], 1);
+        % max_y = max(y_2);
+        % min_y = min(y_2);
         bin_mask = (y > 1 - epsilon);
-        volshow(bin_mask);
+        % volshow(bin_mask);
+        % figure;
+        % sliceViewer(bin_mask);
     end
 
     % binary mask reshaping
     bin_mask = reshape(bin_mask, [], 1);
-    sum_bin = sum(bin_mask(bin_mask == 1));
-    rel_sum = sum_bin / size(bin_mask, 1);
+    % sum_bin = sum(bin_mask(bin_mask == 1));
+    % rel_sum = sum_bin / size(bin_mask, 1);
 end

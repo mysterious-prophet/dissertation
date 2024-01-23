@@ -11,6 +11,17 @@
 % kdyz pouzivam na klasifikaci tanh, tak musi byt hodnoty class -1, 1 a ne
 % 0, 1
 
+% locRegions function and binary mask erosion
+% 	using this mask for zernike and spherical harmonics as well - how to do
+% 	that if I create these already twice the size of X in every dimension
+
+% Load all images first then use them instead of loading one-by-one
+
+% filter preprocessing
+%   filter sizes - double the size of the image
+
+% Testing examples
+
 function results = testDriver(conf_num)  
     %% Load configuration, create instance of result class
     conf = configurationClass(conf_num);
