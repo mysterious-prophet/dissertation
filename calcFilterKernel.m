@@ -74,19 +74,32 @@ function K = calcFilterKernel(X, filter_name, kernel_style, varargin)
         K = -4*pi^2*d_sq;
     elseif(strcmp(filter_name, 'fftLoB'))
         K = d_sq .* calcFilterKernel(X, 'fftLP', 'buttKer', varargin);
+    elseif(strcmp(filter_name, 'fftLoG'))
+        K = d_sq .* calcFilterKernel(X, 'fftLP', 'gaussKer', varargin);
     elseif(strcmp(filter_name, 'fftDoB'))
-        if(numel(varargin{1}) < 4)
+        if(numel(varargin) < 4)
             dist1 = 0.5;
             r1 = 1;
             dist2 = 0.25;
             r2 = 1;
         else
-            dist1 = varargin{1}{1};
-            r1 = varargin{1}{2};
-            dist2 = varargin{1}{3};
-            r2 = varargin{1}{4};
+            dist1 = varargin{1, 1};
+            r1 = varargin{1, 2};
+            dist2 = varargin{1, 3};
+            r2 = varargin{1, 4};
         end
         K = calcFilterKernel(X, 'fftLP','buttKer', {dist1, r1}) ...
             - calcFilterKernel(X, 'fftLP', 'buttKer', {dist2, r2});
+    elseif(strcmp(filter_name, 'fftDoG'))
+        if(numel(varargin{1}) < 2)
+            sigma1 = 1;
+            sigma2 = 5;
+        else
+            sigma1 = varargin{1, 1};
+            sigma2 = varargin{1, 2};
+        end
+        K = calcFilterKernel(X, 'fftLP', 'gaussKer', {sigma1}) ...
+            - calcFilterKernel(X, 'fftLP', 'gaussKer', {sigma2});
+
     end
 end

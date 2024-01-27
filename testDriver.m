@@ -12,13 +12,16 @@
 % 0, 1
 
 % locRegions function and binary mask erosion
+%   border of binary mask and its dilation
+%   inside of the border is the brain
+
 % 	using this mask for zernike and spherical harmonics as well - how to do
 % 	that if I create these already twice the size of X in every dimension
 
 % Load all images first then use them instead of loading one-by-one
 
 % filter preprocessing
-%   filter sizes - double the size of the image
+%   filter parameters as part of configuration class
 
 % Testing examples
 

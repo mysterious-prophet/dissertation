@@ -129,8 +129,8 @@ classdef configurationClass
                     conf.num_pos_imgs = 1;
                     conf.num_neg_imgs = 1;
                 
-                    conf.bin_theta_low = 300;
-                    conf.bin_theta_upp = 450;
+                    conf.bin_theta_low = -150;
+                    conf.bin_theta_upp = 100;
                     conf.bin_mask_erode = true;
                 
                     conf.calc_image_features = true;
