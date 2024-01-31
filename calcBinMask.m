@@ -10,7 +10,7 @@ function bin_mask = calcBinMask(X, low_val, upp_val, bin_mask_erode, rho, epsilo
     % volshow(X);
 
     %% initital image filtering prepro
-    K = calcFilterKernel(X, 'fftLP', 'buttKer', {1, 2});
+    K = calcFilterKernel(X, 'fftLP', 'buttKer', {0.5, 2});
     X_filt = round(real(filterFunctionFFT(X, K, 0)));
     [M, N, P] = size(X);
     max_x = max(max(max(X)));
@@ -28,20 +28,20 @@ function bin_mask = calcBinMask(X, low_val, upp_val, bin_mask_erode, rho, epsilo
 
     %% find border, dilate it and get its inside
     border = zeros(M, N, P);
-    border(X_filt < 250) = 1;
+    border(X_filt < 800) = 1;
     figure;
     sliceViewer(border);
 
-    [~, border_dil] = calcEroDil(border, 2);
+    [~, border_dil] = calcEroDil(border, 25);
     figure;
     sliceViewer(border_dil);
 
-    inside = bwlabeln(border_dil, 18);
+    inside = bwlabeln(border_dil, 6);
     % in_count = bwconncomp(border_dil, 6);
     figure;
     sliceViewer(inside);
 
-    [~, inside_dil] = calcEroDil(inside, 1.5);
+    [~, inside_dil] = calcEroDil(inside, 20);
     figure;
     sliceViewer(inside_dil);
 

@@ -123,8 +123,9 @@ classdef configurationClass
         function conf = configurationClass(conf_num)
             switch(conf_num)
                 case 11
+                    % data\Dissertation AD data\ADNI\003_S_1059\Axial_PD-T2_TSE\2006-11-09_17_42_08.0\I29249
                     % data\Dissertation AD data\ADNI\002_S_0619\Axial_PD_T2_FSE\2008-08-13_15_40_22.0\I116122
-                    conf.pos_img_datastore = imageDatastore("data\Dissertation AD data\ADNI\003_S_1059\Axial_PD-T2_TSE\2006-11-09_17_42_08.0\I29249","FileExtensions", ".dcm", "ReadFcn", @loadImage);
+                    conf.pos_img_datastore = imageDatastore("data\Dissertation AD data\ADNI\002_S_0619\Axial_PD_T2_FSE\2008-08-13_15_40_22.0\I116122","FileExtensions", ".dcm", "ReadFcn", @loadImage);
                     conf.neg_img_datastore = imageDatastore("data\Disseration CN data\ADNI\002_S_0295\Axial_PD_T2_FSE\2009-05-22_07_18_31.0\I144448", "FileExtensions", ".dcm", "ReadFcn", @loadImage);
                     conf.num_pos_imgs = 1;
                     conf.num_neg_imgs = 1;
