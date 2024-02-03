@@ -9,8 +9,68 @@ function bin_mask = calcBinMask(X, low_val, upp_val, bin_mask_erode, rho, epsilo
     % binary mask creation
     % volshow(X);
 
+    figure;
+    sliceViewer(X);
+    se = strel("sphere", 6);
+    X_open = imopen(X, se);
+    % figure;
+    % sliceViewer(X_open);
+    X_ero = imerode(X, se);
+    X_rec = imreconstruct(X_ero, X);
+    % figure;
+    % sliceViewer(X_rec);
+    X_op_cl = imclose(X_open, se);
+    % figure;
+    % sliceViewer(X_op_cl);
+    X_rec_dil = imdilate(X_rec, se);
+    X_rec_dil_rec = imreconstruct(imcomplement(X_rec_dil), imcomplement(X_rec));
+    X_rec_dil_rec_com = imcomplement(X_rec_dil_rec);
+    % figure;
+    % sliceViewer(X_rec_dil_rec);
+    % figure;
+    % sliceViewer(X_rec_dil_rec_com);
+    reg_max = imregionalmax(X_rec_dil_rec_com);
+    % figure;
+    % sliceViewer(reg_max);
+    reg_max_com = imcomplement(reg_max);
+    figure;
+    sliceViewer(reg_max_com);
+    se1 = strel("sphere", 4);
+    % reg_max_com_cl = imclose(reg_max_com, se1);
+    % figure;
+    % sliceViewer(reg_max_com_cl);
+    reg_max_com_ero = imerode(reg_max_com, se1);
+    figure;
+    sliceViewer(reg_max_com_ero);
+    reg_max_final = imcomplement(bwareaopen(reg_max_com_ero, 1000000));
+    figure;
+    sliceViewer(reg_max_final);
+    reg_max_final1 = bwareaopen(imopen(reg_max_final, se1), 10000);
+    figure;
+    sliceViewer(reg_max_final1);
+    fin_vol = volshow(X, OverlayData=reg_max_final1);
+    viewer = fin_vol.Parent;
+    fin_vol.RenderingStyle = "GradientOpacity";
+    fin_vol.Alphamap = linspace(0, 0.2, 256);
+    fin_vol.OverlayAlphamap = 0.6;
+    viewer.BackgroundColor = "white";
+    viewer.BackgroundGradient = "off";
+
+    % figure;
+    % sliceViewer(imcomplement(reg_max_com_ero));
+
+    % bw = imbinarize(X_rec_dil_rec_com, "adaptive");
+    % figure;
+    % sliceViewer(bw);
+    D = bwdist(reg_max_final1);
+    DL = watershed(DL, 26);
+    bgm = DL == 0;
+    figure;
+    sliceViewer(bgm);
+
+
     %% initital image filtering prepro
-    K = calcFilterKernel(X, 'fftLP', 'buttKer', {0.5, 2});
+    K = calcFilterKernel(X, 'fftDoG', 0, {0.1, 2, 2, 5});
     X_filt = round(real(filterFunctionFFT(X, K, 0)));
     [M, N, P] = size(X);
     max_x = max(max(max(X)));
@@ -25,6 +85,11 @@ function bin_mask = calcBinMask(X, low_val, upp_val, bin_mask_erode, rho, epsilo
     figure;
     X_diff = X - X_filt;
     sliceViewer(X_diff);
+    figure;
+    X_watershed = watershed(X_diff, 6);
+    sliceViewer(X_watershed);
+
+    % 3D watershed on the difference
 
     %% find border, dilate it and get its inside
     border = zeros(M, N, P);
@@ -32,7 +97,7 @@ function bin_mask = calcBinMask(X, low_val, upp_val, bin_mask_erode, rho, epsilo
     figure;
     sliceViewer(border);
 
-    [~, border_dil] = calcEroDil(border, 25);
+    [~, border_dil] = calcEroDil(border, 15);
     figure;
     sliceViewer(border_dil);
 
@@ -41,9 +106,12 @@ function bin_mask = calcBinMask(X, low_val, upp_val, bin_mask_erode, rho, epsilo
     figure;
     sliceViewer(inside);
 
-    [~, inside_dil] = calcEroDil(inside, 20);
+    [~, inside_dil] = calcEroDil(inside, 1.5);
     figure;
     sliceViewer(inside_dil);
+
+    % convex hull or concavity/hole filling of inside dil
+    % take bwconnectn of largerst inside cavity and take that and dilate it
 
     %% binary mask creation
     bin_mask = ones(M, N, P);
