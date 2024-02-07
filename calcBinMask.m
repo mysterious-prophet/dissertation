@@ -9,10 +9,28 @@ function bin_mask = calcBinMask(X, low_val, upp_val, bin_mask_erode, rho, epsilo
     % binary mask creation
     % volshow(X);
 
-    figure;
-    sliceViewer(X);
+    % figure;
+    % montage(X);
+    K = calcFilterKernel(X, 'fftDoG', 0, {0.1, 2, 2, 5});
+    X_filt = round(real(filterFunctionFFT(X, K, 0)));
+    X_diff = X - X_filt;
+    % 
+    % %% edges
+    % BW = edge3(X_diff, "approxcanny", 0.3);
+    % figure;
+    % sliceViewer(BW);
+    % 
+    % %% grey differences
+    % % [M, N, P] = size(X);
+    % % W = graydiffweight(X_diff, round(3*M/4), round(N/2), round(P/2), "GrayDifferenceCutoff", 120);
+    % % thresh = 0.01;
+    % % BW = imsegfmm(W, round(3*M/4), round(N/2), round(P/2), thresh);
+    % % figure;
+    % % sliceViewer(BW);
+    % 
+    %% segmentation
     se = strel("sphere", 6);
-    X_open = imopen(X, se);
+    X_open = imopen(X_filt, se);
     % figure;
     % sliceViewer(X_open);
     X_ero = imerode(X, se);
@@ -35,20 +53,27 @@ function bin_mask = calcBinMask(X, low_val, upp_val, bin_mask_erode, rho, epsilo
     reg_max_com = imcomplement(reg_max);
     figure;
     sliceViewer(reg_max_com);
-    se1 = strel("sphere", 4);
+    se1 = strel("sphere", 10);
     % reg_max_com_cl = imclose(reg_max_com, se1);
     % figure;
     % sliceViewer(reg_max_com_cl);
     reg_max_com_ero = imerode(reg_max_com, se1);
     figure;
     sliceViewer(reg_max_com_ero);
-    reg_max_final = imcomplement(bwareaopen(reg_max_com_ero, 1000000));
+    reg_max_final = imfill(imcomplement(bwareaopen(reg_max_com_ero, 1000000)), "holes");
     figure;
     sliceViewer(reg_max_final);
-    reg_max_final1 = bwareaopen(imopen(reg_max_final, se1), 10000);
+    reg_max_final1 = bwareaopen(imopen(reg_max_final, se), 10000);
     figure;
     sliceViewer(reg_max_final1);
-    fin_vol = volshow(X, OverlayData=reg_max_final1);
+    reg_max_final2 = imfill(reg_max_final1, "holes");
+    % figure;
+    % sliceViewer(reg_max_final2);
+
+    figure;
+    montage(reg_max_final2);
+
+    fin_vol = volshow(X, OverlayData=reg_max_final2);
     viewer = fin_vol.Parent;
     fin_vol.RenderingStyle = "GradientOpacity";
     fin_vol.Alphamap = linspace(0, 0.2, 256);
@@ -62,8 +87,8 @@ function bin_mask = calcBinMask(X, low_val, upp_val, bin_mask_erode, rho, epsilo
     % bw = imbinarize(X_rec_dil_rec_com, "adaptive");
     % figure;
     % sliceViewer(bw);
-    D = bwdist(reg_max_final1);
-    DL = watershed(DL, 26);
+    D = bwdist(reg_max_final2);
+    DL = watershed(D, 26);
     bgm = DL == 0;
     figure;
     sliceViewer(bgm);
@@ -84,20 +109,15 @@ function bin_mask = calcBinMask(X, low_val, upp_val, bin_mask_erode, rho, epsilo
     sliceViewer(X_filt);
     figure;
     X_diff = X - X_filt;
-    sliceViewer(X_diff);
-    figure;
-    X_watershed = watershed(X_diff, 6);
-    sliceViewer(X_watershed);
-
-    % 3D watershed on the difference
+    sliceViewer(X_diff)
 
     %% find border, dilate it and get its inside
     border = zeros(M, N, P);
-    border(X_filt < 800) = 1;
+    border(X_filt < 150) = 1;
     figure;
     sliceViewer(border);
 
-    [~, border_dil] = calcEroDil(border, 15);
+    [~, border_dil] = calcEroDil(border, 1.5);
     figure;
     sliceViewer(border_dil);
 
