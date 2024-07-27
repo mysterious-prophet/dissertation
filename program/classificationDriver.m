@@ -27,7 +27,6 @@ function [class_stats_leave1, class_stats_stratkfold, ...
     max_num_train_configs = getNumLearnConfigs(train_params);
 
     y_star_train = ones(num_pos_imgs + num_neg_imgs, 1);
-    y_star_train(num_pos_imgs + 1:end) = y_star_train(num_pos_imgs + 1:end) - 1;
 
     class_stats_leave1 = zeros(19, num_num_whit_features * num_classifiers * max_num_train_configs);
     class_stats_stratkfold = zeros(19, num_num_whit_features * num_classifiers * max_num_train_configs);
@@ -40,6 +39,11 @@ function [class_stats_leave1, class_stats_stratkfold, ...
                     X_train_temp = squeeze(X_train(i, :, 1:num_whit_features(i)));
                 else
                     X_train_temp = X_train;
+                end
+                if(strcmp(classifier_train_name(j), "trainANN") && strcmp(train_params{1, j}{2}, "tanh"))
+                    y_star_train(num_pos_imgs + 1:end) = y_star_train(num_pos_imgs + 1:end) - 2;
+                else
+                    y_star_train(num_pos_imgs + 1:end) = y_star_train(num_pos_imgs + 1:end) - 1;
                 end
                 [class_stats_leave1(:, (i-1)*(num_classifiers*max_num_train_configs) + (j-1)*max_num_train_configs + k), ...
                     class_stats_stratkfold(:, (i-1)*(num_classifiers*max_num_train_configs) + (j-1)*max_num_train_configs + k)] = ...
