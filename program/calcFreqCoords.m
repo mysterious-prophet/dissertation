@@ -9,13 +9,24 @@
 %        : psi - polar angle 0 <= psi <= pi, theta equivalent
 
 function [k, mu, psi] = calcFreqCoords(M, N, P)
-    om_1 = ((0:M-1) ./ M) * 2*pi - pi;
-    om_2 = ((0:N-1) ./ N) * 2*pi - pi;
-    om_3 = ((0:P-1) ./ P) *pi - pi/2;
+    if(P == 0)
+        om_1 = ((0:M-1) ./ M) * 2*pi - pi;
+        om_2 = ((0:N-1) ./ N) * 2*pi - pi;
 
-    [omega_1, omega_2, omega_3] = meshgrid(om_1, om_2, om_3);
+        [omega_1, omega_2] = meshgrid(om_1, om_2);
 
-    k = sqrt(omega_1.^2 + omega_2.^2 + omega_3.^2);
-    mu = angle(omega_1 + 1i*omega_2);
-    psi = acos(omega_3 ./ k);
+        k = sqrt(omega_1.^2 + omega_2.^2);
+        mu = angle(omega_1 + 1i*omega_2);
+        
+    elseif(P > 0)
+        om_1 = ((0:M-1) ./ M) * 2*pi - pi;
+        om_2 = ((0:N-1) ./ N) * 2*pi - pi;
+        om_3 = ((0:P-1) ./ P) *pi - pi/2;
+    
+        [omega_1, omega_2, omega_3] = meshgrid(om_1, om_2, om_3);
+    
+        k = sqrt(omega_1.^2 + omega_2.^2 + omega_3.^2);
+        mu = angle(omega_1 + 1i*omega_2);
+        psi = acos(omega_3 ./ k);
+    end
 end

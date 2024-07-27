@@ -1,3 +1,11 @@
+%% Interpolate 3D coordinate system
+% Interpolates values of a 3D image from the input original
+
+% inputs: input_image
+%       : dx, dy, dz - steps
+%       : spacing
+% outputs: interpolation - image with interpolated values in the new coordinate system 
+
 function interpolation = interpolate3D(input_image, dx, dy, dz, spacing)
     % original size
     [m, n, p] = size(input_image);

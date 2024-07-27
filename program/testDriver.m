@@ -10,7 +10,6 @@
 %TODO
 % stahnout data, aspon 100 obrazku pro kazdou kategorii a zkusti test run
 % kdyz pouzivam na klasifikaci tanh, tak musi byt hodnoty class -1, 1 a ne 0, 1
-% pridat moznost analyzy 2D obrazu
 % kernelove metody
 
 % locRegions function and binary mask erosion

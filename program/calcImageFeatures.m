@@ -26,7 +26,35 @@ function image_features = calcImageFeatures(invars, bin_mask, bin_theta, ...
         getNums(func_name, bin_theta, rho, filter_name, kernel_style, nonlin_trans, n_max, l_max, features);
    
     dims_invars = ndims(invars);
-    if(dims_invars == 4)
+    if(dim_vars == 3)
+        [~, M, N] = size(invars);
+        image_features = zeros(num_invars, num_features);
+        for i = 1:num_invars
+            cur_invar = reshape(invars(i, :, :), [M N]); 
+%             sliceViewer(cur_invar);
+            invar_max = max(max(max(cur_invar)));
+            cur_invar = log(max(cur_invar / invar_max, 1e-4));
+
+            if(~strcmp(filter_name, 'noFilt'))
+                cur_invar = real(imageProcessingDriver(cur_invar, frame_style, kernel_style, filter_name, nonlin_trans));
+            end
+
+%             sliceViewer(cur_invar);
+
+            cur_invar = reshape(cur_invar, [], 1);
+            cur_invar = cur_invar(bin_mask == 1);
+            for j = 1:num_features
+                if(j == 7)
+                    image_features(i, j) = calcInvarFeature(cur_invar, 'perc', 25);
+                elseif(j == 8)
+                    image_features(i, j) = calcInvarFeature(cur_invar, 'perc', 75);
+                else
+                    image_features(i, j) = calcInvarFeature(cur_invar, features(j));
+                end
+            end
+        end
+
+    elseif(dims_invars == 4)
         [~, M, N, P] = size(invars);
         image_features = zeros(num_invars, num_features);
         for i = 1:num_invars
